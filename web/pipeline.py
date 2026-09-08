@@ -14,10 +14,16 @@ from __future__ import annotations
 
 import io
 import logging
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
 from typing import Any, Dict, Tuple
+
+# Ensure project root is in sys.path (critical for Vercel serverless execution)
+_ROOT = Path(__file__).resolve().parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
 import openpyxl
 

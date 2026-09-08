@@ -17,8 +17,14 @@ import logging
 import tempfile
 import time
 import uuid
+import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+# Ensure project root is in sys.path (critical for Vercel serverless execution)
+_ROOT = Path(__file__).resolve().parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -288,11 +294,23 @@ async def health() -> Dict[str, str]:
 # ---------------------------------------------------------------------------
 
 _static_dir = Path(__file__).resolve().parent / "static"
-if _static_dir.exists():
-    # Serve index.html at root
-    @app.get("/", response_class=HTMLResponse, include_in_schema=False)
-    async def serve_index() -> HTMLResponse:
-        index_path = _static_dir / "index.html"
-        return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
+if not _static_dir.exists():
+    _static_dir = _ROOT / "web" / "static"
 
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+async def serve_index() -> HTMLResponse:
+    index_path = _static_dir / "index.html"
+    if not index_path.exists():
+        index_path = _ROOT / "web" / "static" / "index.html"
+    if index_path.exists():
+        return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
+    return HTMLResponse(
+        content="""<!DOCTYPE html><html><head><title>LinkedIn Network Analyzer</title></head>
+        <body style="font-family:sans-serif;text-align:center;padding:50px;">
+        <h2>LinkedIn Network Analyzer</h2><p>Server is running. Please ensure static files are bundled.</p>
+        </body></html>""",
+        status_code=200,
+    )
+
+if _static_dir.exists():
     app.mount("/static", StaticFiles(directory=str(_static_dir)), name="static")
