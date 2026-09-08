@@ -253,3 +253,28 @@ Or using standard `unittest`:
 ```powershell
 python -m unittest discover -s tests -v
 ```
+
+---
+
+## 🌐 Web Application & Deployment
+
+A FastAPI-powered web interface is available under `web/`.
+
+### Run Locally
+
+```powershell
+pip install -r requirements.txt
+uvicorn web.app:app --reload
+```
+
+Open [http://localhost:8000](http://localhost:8000) in your browser.
+
+### Deploy to Vercel
+
+The repository is configured for modern Vercel Python runtime using `pyproject.toml`:
+```toml
+[tool.vercel]
+entrypoint = "web.app:app"
+```
+Simply connect your GitHub repository to Vercel and it will deploy automatically.
+

@@ -1,0 +1,15 @@
+[project]
+name = "linkedin-network-analyzer"
+version = "1.0.0"
+description = "LinkedIn Network Analyzer Web Application"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.0.0",
+    "openpyxl>=3.1.0",
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.23.0",
+    "python-multipart>=0.0.6",
+]
+
+[tool.vercel]
+entrypoint = "web.app:app"

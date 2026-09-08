@@ -11,8 +11,10 @@ Endpoints:
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import logging
+import tempfile
 import time
 import uuid
 from pathlib import Path
@@ -215,12 +217,20 @@ async def analyze(
         "filename": "linkedin_network_analysis.zip",
     }
 
+    # Also persist to /tmp/{token}.zip as fallback for serverless environments
+    try:
+        tmp_cache_file = Path(tempfile.gettempdir()) / f"lna_{token}.zip"
+        tmp_cache_file.write_bytes(zip_bytes)
+    except Exception:
+        pass
+
     return JSONResponse(
         content={
             "status": "success",
             "summary": summary,
             "download_token": token,
             "download_url": f"/download/{token}",
+            "zip_base64": base64.b64encode(zip_bytes).decode("ascii"),
             "token_expires_in_seconds": DOWNLOAD_TOKEN_TTL_SECONDS,
         }
     )
@@ -232,18 +242,26 @@ async def download(token: str) -> Response:
     _prune_expired_tokens()
 
     entry = _download_cache.get(token)
-    if not entry:
+    zip_bytes = None
+    filename = "linkedin_network_analysis.zip"
+
+    if entry:
+        zip_bytes = entry["zip_bytes"]
+        filename = entry.get("filename", filename)
+    else:
+        # Fallback check in system temp dir
+        tmp_cache_file = Path(tempfile.gettempdir()) / f"lna_{token}.zip"
+        if tmp_cache_file.exists():
+            try:
+                zip_bytes = tmp_cache_file.read_bytes()
+            except Exception:
+                pass
+
+    if not zip_bytes:
         raise HTTPException(
             status_code=404,
             detail="Download link expired or not found. Please re-upload your CSV.",
         )
-
-    zip_bytes = entry["zip_bytes"]
-    filename = entry.get("filename", "linkedin_network_analysis.zip")
-
-    # Remove from cache after retrieval (one-time download)
-    # Actually, allow multiple downloads within the TTL window
-    # del _download_cache[token]
 
     return Response(
         content=zip_bytes,

@@ -32,6 +32,7 @@
   // ── State ───────────────────────────────────────────────────
   let selectedFile = null;
   let downloadUrl  = null;
+  let zipBase64    = null;
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
@@ -181,6 +182,7 @@
 
       // Success — render results
       downloadUrl = data.download_url;
+      zipBase64   = data.zip_base64 || null;
       renderResults(data.summary);
       setProcessingState(false);
       showResults();
@@ -316,6 +318,28 @@
 
   // ── Download Handler ────────────────────────────────────────
   btnDownloadZip.addEventListener('click', () => {
+    if (zipBase64) {
+      try {
+        const binaryString = atob(zipBase64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const blob = new Blob([bytes], { type: 'application/zip' });
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = 'linkedin_network_analysis.zip';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
+        return;
+      } catch (e) {
+        console.warn('Direct blob download failed, falling back to downloadUrl:', e);
+      }
+    }
+
     if (!downloadUrl) return;
 
     // Create a temporary link and click it
@@ -332,6 +356,7 @@
     resetUploadZone();
     hideError();
     downloadUrl = null;
+    zipBase64 = null;
     resultsSection.classList.remove('visible');
     uploadCard.style.display = '';
     kpiGrid.innerHTML = '';
