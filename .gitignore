@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Virtual Environment
+.venv/
+env/
+venv/
+ENV/
+
+# Sensitive data and user export files
+*.csv
+*.xlsx
+logs/*.log
+logs/*.log.*
+
+# Retain project template markers and synthetic test fixtures
+!input/.gitkeep
+!output/.gitkeep
+!logs/.gitkeep
+!input/sample_connections.csv
+
+# IDEs
+.vscode/
+.idea/
+*.swp

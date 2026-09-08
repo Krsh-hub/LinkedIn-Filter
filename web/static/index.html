@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Upload your LinkedIn Connections.csv to analyze, classify, and export your professional network. Privacy-first — no data is stored." />
+  <title>LinkedIn Network Analyzer — Analyze Your Professional Network</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>" />
+</head>
+<body>
+  <div class="container">
+
+    <!-- ═══════ Hero ═══════ -->
+    <header class="hero">
+      <span class="hero__icon" aria-hidden="true">🔍</span>
+      <h1 class="hero__title">LinkedIn Network Analyzer</h1>
+      <p class="hero__subtitle">
+        Upload your LinkedIn connections export to instantly classify senior contacts,
+        score seniority, and download professional reports.
+      </p>
+      <span class="badge badge--privacy">🔒 100% Private — Nothing Stored</span>
+    </header>
+
+    <!-- ═══════ Upload Card ═══════ -->
+    <section class="card" id="upload-card">
+      <div class="card__title">
+        <span class="card__title-icon" aria-hidden="true">📁</span>
+        Upload Your Connections
+      </div>
+
+      <!-- Drop zone -->
+      <div class="upload-zone" id="upload-zone" role="button" tabindex="0" aria-label="Click or drag to upload your CSV file">
+        <span class="upload-zone__icon" aria-hidden="true" id="upload-icon">☁️</span>
+        <p class="upload-zone__text" id="upload-text">
+          <strong>Click to browse</strong> or drag &amp; drop your CSV file here
+        </p>
+        <p class="upload-zone__hint" id="upload-hint">Accepts .csv files up to 10 MB</p>
+        <input type="file" class="upload-zone__file-input" id="file-input" accept=".csv" />
+      </div>
+
+      <!-- Advanced Filters -->
+      <button class="filters-toggle" id="filters-toggle" type="button" aria-expanded="false" aria-controls="filters-panel">
+        <span class="filters-toggle__chevron" aria-hidden="true">▶</span>
+        Advanced Filters (optional)
+      </button>
+
+      <div class="filters-panel" id="filters-panel" aria-hidden="true">
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label class="filter-label" for="filter-role">Role</label>
+            <select class="filter-select" id="filter-role">
+              <option value="">All senior roles</option>
+              <option value="founder">Founder</option>
+              <option value="ceo">CEO</option>
+              <option value="cto">CTO</option>
+              <option value="c-suite">C-Suite (all)</option>
+              <option value="director">Director</option>
+              <option value="entrepreneur">Entrepreneur</option>
+              <option value="senior">Senior Leadership</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="filter-company">Company (exact)</label>
+            <input type="text" class="filter-input" id="filter-company" placeholder="e.g. Google" />
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="filter-company-contains">Company (contains)</label>
+            <input type="text" class="filter-input" id="filter-company-contains" placeholder="e.g. tech" />
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="filter-location">Location</label>
+            <input type="text" class="filter-input" id="filter-location" placeholder="e.g. India" />
+          </div>
+
+          <div class="filter-group full-width">
+            <label class="filter-label" for="filter-search">Search (name, company, title)</label>
+            <input type="text" class="filter-input" id="filter-search" placeholder="e.g. AI, Machine Learning" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Analyze Button -->
+      <button class="btn-analyze" id="btn-analyze" type="button" disabled>
+        <span id="btn-analyze-text">📊 Analyze Network</span>
+      </button>
+
+      <!-- Error message -->
+      <div class="error-message" id="error-message" role="alert"></div>
+    </section>
+
+    <!-- ═══════ Processing Overlay ═══════ -->
+    <div class="processing-overlay" id="processing-overlay" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="processing-text">
+        <strong>Analyzing your network…</strong><br />
+        Classifying roles, scoring seniority, deduplicating contacts.
+      </p>
+    </div>
+
+    <!-- ═══════ Results Section ═══════ -->
+    <section class="results-section" id="results-section" aria-live="polite">
+      <div class="card">
+        <div class="card__title">
+          <span class="card__title-icon" aria-hidden="true">📊</span>
+          Analysis Results
+        </div>
+
+        <div class="kpi-grid" id="kpi-grid">
+          <!-- KPI cards injected by JS -->
+        </div>
+
+        <div class="download-actions" id="download-actions">
+          <button class="btn-download" id="btn-download-zip" type="button">
+            📥 Download All Reports (ZIP)
+          </button>
+          <button class="btn-download secondary" id="btn-new-upload" type="button">
+            🔄 New Upload
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ Privacy Card ═══════ -->
+    <section class="card privacy-card">
+      <div class="card__title">
+        <span class="card__title-icon" aria-hidden="true">🛡️</span>
+        Your Privacy is Protected
+      </div>
+      <ul class="privacy-list">
+        <li>Your file is processed <strong>transiently</strong> — it is deleted from memory immediately after generating your reports.</li>
+        <li><strong>No data is stored</strong> on any server, database, or disk. Every upload is stateless and ephemeral.</li>
+        <li><strong>No web scraping</strong> — this tool only reads the CSV you export directly from LinkedIn.</li>
+        <li><strong>No telemetry, analytics, or tracking</strong> of any kind. Zero third-party API calls.</li>
+        <li><strong>No email inference</strong> — only reads emails already present in your exported file.</li>
+        <li>Fully <strong>open-source</strong> — you can inspect every line of code.</li>
+      </ul>
+    </section>
+
+    <!-- ═══════ LinkedIn Export Instructions ═══════ -->
+    <section class="card">
+      <button class="accordion-toggle" id="instructions-toggle" type="button" aria-expanded="false" aria-controls="instructions-body">
+        <span>
+          <span class="card__title-icon" aria-hidden="true">📥</span>
+          How to Export Your LinkedIn Connections
+        </span>
+        <span class="accordion-toggle__chevron" aria-hidden="true">▼</span>
+      </button>
+
+      <div class="accordion-body" id="instructions-body" aria-hidden="true">
+        <ol class="instructions-list">
+          <li>Log into your <strong>LinkedIn</strong> account.</li>
+          <li>Click your profile picture → <strong>Settings &amp; Privacy</strong>.</li>
+          <li>In the left navigation, select <strong>Data Privacy</strong>.</li>
+          <li>Under "How LinkedIn uses your data", click <strong>Get a copy of your data</strong>.</li>
+          <li>Select <strong>Want something in particular?</strong> and check <strong>Connections</strong>.</li>
+          <li>Click <strong>Request archive</strong> — LinkedIn will email you a download link within 10–30 minutes.</li>
+          <li>Download the <code>.zip</code> archive, extract <span class="instructions-path">Connections.csv</span>, and upload it here.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ═══════ Footer ═══════ -->
+    <footer class="footer">
+      <p>LinkedIn Network Analyzer · Privacy-first network analysis · No data stored</p>
+    </footer>
+
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
